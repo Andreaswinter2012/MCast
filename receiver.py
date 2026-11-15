@@ -22,14 +22,14 @@ else:
 print("The receiver is ready to connect")
 while True:
     user, adress = server.accept()
-    data = user.recv(1024)
+    data = user.recv(8192)
     if data.decode("utf-8") == "name":
         user.send(hostname.encode("utf-8"))
         user.close()
     if data.decode("utf-8") == "connect":
 
         user.send("connect".encode("utf-8"))
-        data = user.recv(1024)
+        data = user.recv(8192)
         url = data.decode("utf-8")
         if system == "android":
             time.sleep(0.3)
@@ -43,7 +43,7 @@ while True:
                 vlc = subprocess.Popen(["vlc", url, "--fullscreen"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
         while True:
             try:
-                data = user.recv(1024)
+                data = user.recv(8192)
                 if data.decode("utf-8") == "disconnect":
                     if system == "android":
                         user.close()
