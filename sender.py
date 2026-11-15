@@ -121,30 +121,45 @@ def screenshare():
         cast = subprocess.Popen(["python3", "-m", "RangeHTTPServer", "1234"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, stdin=subprocess.DEVNULL)
         return "http://"+address+":1234/stream.m3u8"
 
+def webfilemaneger():
+    start_dir = os.path.expanduser("~/storage")
+    current = start_dir
+    exts = (".mp4", ".mkv", ".avi", ".mov", ".webm", ".ts", ".flv", ".wmv", ".m4v")
+    while True:
+        items = sorted(os.listdir(current))
+        dirs = [d + "/" for d in items if os.path.isdir(os.path.join(current, d)) and not d.startswith(".")]
+        files = [f for f in items if os.path.isfile(os.path.join(current, f)) and f.lower().endswith(exts)]
+        buttons = []
+        if current != start_dir:
+            buttons.append("..")
+        buttons += dirs + files
+        choice = actions(current, buttons=buttons)
+        if choice == "..":
+            current = os.path.dirname(current)
+        elif choice.endswith("/"):
+            current = os.path.join(current, choice[:-1])
+        else:
+            return os.path.join(current, choice)
+
+
 def mediacast(filepath=None):
     global cast, tmp
     if system == "android":
+        tmp = os.path.join(tempfile.gettempdir(), "media")
+        os.makedirs(tmp, exist_ok=True)
+        os.chdir(tmp)
         if filepath == None:
             if webui:
-                put_text("Select video from explorer")
+                filepath = webfilemaneger()
+                shutil.copy2(filepath, "video.mp4")
             else:
                 print("Select video from explorer and press enter")
-            tmp = os.path.join(tempfile.gettempdir(), "media")
-            os.makedirs(tmp, exist_ok=True)
-            os.chdir(tmp)
-            subprocess.run(["termux-storage-get", "video.mp4"])
-            if webui:
-                actions(buttons=["Tap to continue"])
-            else:
+                subprocess.run(["termux-storage-get", "video.mp4"])
                 input()
-            file = "video.mp4"
         else:
-            tmp = os.path.join(tempfile.gettempdir(), "media")
-            os.makedirs(tmp, exist_ok=True)
-            os.chdir(tmp)
             filepath = str(filepath).strip('"')
             shutil.copy2(filepath, "video.mp4")
-            file = "video.mp4"
+        file = "video.mp4"
         cast = subprocess.Popen(["python3", "-m", "RangeHTTPServer", "1234"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, stdin=subprocess.DEVNULL)
         return "http://"+address+":1234/video.mp4"
     if system == "win32" or system == "linux":
@@ -250,6 +265,7 @@ else:
                 actions(buttons=["Disconnect"])
                 disconnect("screenshare")
                 put_text("Exit")
+                os._exit(0)
             if mode == "Media cast":
                 receiver = actions("Select TV", buttons=receivers)
                 index = receivers.index(receiver)
@@ -259,6 +275,7 @@ else:
                 actions(buttons=["Disconnect"])
                 disconnect("media")
                 put_text("Exit")
+                os._exit(0)
             if mode == "Stream cast":
                 receiver = actions("Select TV", buttons=receivers)
                 index = receivers.index(receiver)
@@ -268,6 +285,7 @@ else:
                 actions(buttons=["Disconnect"])
                 disconnect("stream")
                 put_text("Exit")
+                os._exit(0)
 
         if system == "android":
             subprocess.Popen(["termux-open-url", "http://localhost:8080/"])
