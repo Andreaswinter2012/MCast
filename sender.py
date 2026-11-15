@@ -8,7 +8,7 @@ import os
 import sys
 from pywebio.input import actions #pip install pywebio
 from pywebio.input import input as web_input
-from pywebio.output import put_text
+from pywebio.output import put_text, put_html
 from pywebio import start_server
 home = os.getcwd()
 webui = False
@@ -133,6 +133,7 @@ def webfilemaneger():
         if current != start_dir:
             buttons.append("..")
         buttons += dirs + files
+        put_html("<style>.btn { display: block !important; width: 100% !important; text-align: left !important; margin-bottom: 6px !important; }</style>")
         choice = actions(current, buttons=buttons)
         if choice == "..":
             current = os.path.dirname(current)
