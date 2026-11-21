@@ -95,17 +95,7 @@ def screenshare():
             actions(buttons=["Tap to start screenshare"])
         else:
             input("Press enter to start screenshare:")
-        import requests #pip install requests
-        try:
-            response = requests.get('http://'+address+':1234/stream.mjpeg', stream=True, timeout=1)
-            if response.status_code == 200:
-                    response.close()
-                    return "http://"+address+":1234/stream.mjpeg"
-                    
-            else:
-                return "http://"+address+":1234/mjpeg"
-        except requests.RequestException:
-            return "http://"+address+":1234/mjpeg"
+        return "http://"+address+":1234/mjpeg"
     if system == "win32":
         tmp = os.path.join(tempfile.gettempdir(), "media")
         os.makedirs(tmp, exist_ok=True)
