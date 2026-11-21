@@ -87,15 +87,18 @@ def disconnect(mode):
 def screenshare():
     global cast, ffmpeg, tmp
     if system == "android":
-        if webui:
-            put_text("Open ScreenStream for screenshare")
+        if "--skip" in sys.argv:
+            pass
         else:
-            print("Open ScreenStream for screenshare")
-        subprocess.run(["am", "start", "-n", "info.dvkr.screenstream/.SingleActivity"])
-        if webui:
-            actions(buttons=["Tap to start screenshare"])
-        else:
-            input("Press enter to start screenshare:")
+            if webui:
+                put_text("Open ScreenStream for screenshare")
+            else:
+                print("Open ScreenStream for screenshare")
+                subprocess.run(["am", "start", "-n", "info.dvkr.screenstream/.SingleActivity"])
+            if webui:
+                actions(buttons=["Tap to start screenshare"])
+            else:
+                input("Press enter to start screenshare:")
         return "http://"+address+":1234/mjpeg"
     if system == "win32":
         tmp = os.path.join(tempfile.gettempdir(), "media")
